@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WOWOK NATURE - 24 jam</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="img/logo.png" type="image/png">
+    
+    <!-- Google Fonts Modern & Premium -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
+    
+    <!-- Ikon FontAwesome CDN Publik (Anti Error) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet CSS untuk Maps (Anti Error) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    
+    <!-- Integrasi Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        sawit: {
+                            light: '#10b981',
+                            DEFAULT: '#047857',
+                            dark: '#064e3b',
+                            neon: '#34d399',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS -->
+    <style>
+        .glass-nav {
+            background: rgba(4, 120, 87, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-card {
+            background: linear-gradient(145deg, rgba(6, 78, 59, 0.85), rgba(2, 44, 34, 0.95));
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(52, 211, 153, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
+        .glass-product {
+            background: rgba(4, 120, 87, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .glass-product:hover {
+            background: rgba(4, 120, 87, 0.4);
+            transform: translateY(-8px);
+            border: 1px solid rgba(52, 211, 153, 0.4);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+        .glass-sidebar {
+            background: rgba(2, 44, 34, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-left: 1px solid rgba(52, 211, 153, 0.3);
+        }
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .cart-scroll::-webkit-scrollbar { width: 6px; }
+        .cart-scroll::-webkit-scrollbar-track { background: rgba(4, 120, 87, 0.1); }
+        .cart-scroll::-webkit-scrollbar-thumb { background: #34d399; border-radius: 10px; }
+        .leaflet-container { z-index: 10 !important; }
+    </style>
+</head>
+<body class="font-sans text-gray-200 antialiased bg-gray-900 overflow-x-hidden">   
+
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/+6285842365698" target="_blank" class="fixed bottom-6 right-6 z-40 bg-green-500 hover:bg-green-400 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform duration-300 floating group">
+        <i class="fab fa-whatsapp text-3xl"></i>
+        <span class="absolute right-16 bg-black bg-opacity-80 text-white px-3 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap text-sm pointer-events-none">Hubungi Kami</span>
+    </a>
+
+    <!-- Floating Cart Button -->
+    <button onclick="toggleCart()" class="fixed bottom-24 right-6 z-40 bg-sawit-neon hover:bg-white text-sawit-dark w-14 h-14 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(52,211,153,0.6)] hover:scale-110 transition-transform duration-300 group">
+        <i class="fas fa-shopping-cart text-2xl"></i>
+        <span id="cart-badge" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border-2 border-sawit-dark hidden">0</span>
+        <span class="absolute right-16 bg-black bg-opacity-80 text-white px-3 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap text-sm pointer-events-none">Lihat Keranjang</span>
+    </button>
+
+    <!-- Header Section -->
+    <div id="intro" class="parallax-window" data-parallax="scroll" data-image-src="img/lop sawit.gif">
+        <nav id="tm-nav" class="fixed w-full z-30 glass-nav transition-all duration-300">
+            <div class="container mx-auto px-4 md:py-4 text-right flex justify-between items-center md:block">
+                <span class="md:hidden text-white font-serif font-bold text-xl drop-shadow-md">WOWOK NATURE</span>
+                <button class="md:hidden py-2 px-2 text-sawit-neon hover:text-white transition" id="menu-toggle"><i class="fas fa-2x fa-bars"></i></button>
+                <ul class="mb-3 md:mb-0 text-sm lg:text-lg font-medium justify-end flex-col md:flex-row hidden md:flex absolute md:relative top-full left-0 w-full md:w-auto bg-sawit-dark md:bg-transparent pb-4 md:pb-0">
+                    <li class="inline-block mx-2 lg:mx-4 mt-2 md:mt-0"><a href="#intro" class="text-sawit-neon hover:text-white hover:bg-sawit-light hover:bg-opacity-20 py-2 px-4 rounded-lg transition-all duration-300 block text-center md:inline">Beranda</a></li>
+                    <li class="inline-block mx-2 lg:mx-4 mt-2 md:mt-0"><a href="#menu" class="text-sawit-neon hover:text-white hover:bg-sawit-light hover:bg-opacity-20 py-2 px-4 rounded-lg transition-all duration-300 block text-center md:inline">Katalog</a></li>
+                    <li class="inline-block mx-2 lg:mx-4 mt-2 md:mt-0"><a href="#about" class="text-sawit-neon hover:text-white hover:bg-sawit-light hover:bg-opacity-20 py-2 px-4 rounded-lg transition-all duration-300 block text-center md:inline">Profil</a></li>
+                    <li class="inline-block mx-2 lg:mx-4 mt-2 md:mt-0"><a href="#kebijakan" class="text-sawit-neon hover:text-white hover:bg-sawit-light hover:bg-opacity-20 py-2 px-4 rounded-lg transition-all duration-300 block text-center md:inline">Kebijakan</a></li>
+                    <li class="inline-block mx-2 lg:mx-4 mt-2 md:mt-0"><a href="#contact" class="text-sawit-neon hover:text-white hover:bg-sawit-light hover:bg-opacity-20 py-2 px-4 rounded-lg transition-all duration-300 block text-center md:inline">Hubungi</a></li>
+                </ul>
+            </div>            
+        </nav>
+
+        <div class="container mx-auto px-4 w-full md:w-3/4 lg:w-1/2">
+            <div class="pb-32 pt-48 sm:pb-60 sm:pt-56 flex flex-col items-center justify-center min-h-screen">
+                <div class="glass-card p-10 md:p-14 mb-8 text-center rounded-2xl reveal w-full">
+                    <h1 class="text-white text-4xl md:text-6xl font-serif font-bold mb-6 tracking-wide drop-shadow-lg">WOWOK NATURE</h1>
+                    <p class="text-sawit-neon text-xl md:text-3xl font-light tracking-wider">NIKMATI HARIMU DENGAN SEBIJI SAWIT - BUKA 24 JAM</p>
+                </div>  
+                <div class="glass-card p-8 md:p-10 mb-8 rounded-2xl text-center reveal w-full delay-100">
+                    <p class="text-gray-200 leading-loose text-base md:text-lg font-light">
+                        Pusat inovasi olahan sawit paling berani di Indonesia. Dikembangkan oleh <strong>RIFQI EKA</strong>, siswa <strong>MAN 1 Yogyakarta</strong> yang mendedikasikan hidupnya untuk mengeksplorasi potensi tersembunyi dari sebiji sawit. 
+                        Punya pertanyaan ekstrem? <a rel="nofollow" href="https://wa.me/+6285842365698" target="_parent" class="underline text-sawit-neon font-bold hover:text-white transition-colors">Konsultasikan di sini</a>. 
+                    </p>
+                </div>
+                <div class="text-center reveal delay-200">
+                    <div class="inline-block">
+                        <a href="#menu" class="flex justify-center items-center bg-sawit-DEFAULT hover:bg-sawit-light text-white py-4 px-10 rounded-full font-semibold text-xl transition-all duration-300 shadow-[0_0_20px_rgba(4,120,87,0.5)] hover:shadow-[0_0_30px_rgba(16,185,129,0.8)] transform hover:-translate-y-1">
+                            <i class="fas fa-box-open mr-4"></i>
+                            <span>Lihat 10 Produk Langka</span>                        
+                        </a>
+                    </div>                    
+                </div>                
+            </div>
+        </div>        
+    </div>
+
+    <!-- Menu Section -->
+    <div id="menu" class="parallax-window relative" data-parallax="scroll" data-image-src="img/lop sawit.gif">
+        <div class="absolute inset-0 bg-sawit-dark opacity-60 mix-blend-multiply"></div>
+        <div class="container mx-auto px-4 py-24 sm:py-32 relative z-10">
+            <div class="text-center mb-16 reveal">
+                <h2 class="bg-sawit-dark bg-opacity-90 border border-sawit-neon text-sawit-neon py-4 px-10 text-3xl md:text-4xl font-serif font-bold inline-block rounded-xl shadow-2xl backdrop-blur-md">Katalog Olahan Nyeleneh</h2>
+            </div>            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                
+                <!-- Kiri -->
+                <div class="glass-card rounded-2xl p-6 sm:p-10 reveal">
+                    <div class="flex flex-col sm:flex-row items-start mb-8 glass-product p-4 rounded-xl group relative">
+                        <div class="overflow-hidden rounded-lg w-full sm:w-24 h-40 sm:h-24 mb-4 sm:mb-0 shrink-0 bg-gray-800">
+                            <img src="img/1.png" alt="Dupa Sawit" class="w-full h-full object-cover group-hover:scale-125 transition-transform duration-500" onerror="this.src='https://via.placeholder.com/150?text=Produk'">
+                        </div>
+                        <div class="sm:ml-6 flex-1 w-full flex flex-col justify-between h-full">
+                            <div>
+                                <h3 class="text-lg sm:text-xl mb-2 text-sawit-neon font-serif font-bold group-hover:text-white transition-colors">Dupa Aroma Sawit Bakar</h3>
+                                <p class="text-gray-300 text-xs sm:text-sm font-light mb-3 leading-relaxed line-clamp-2">Ciptakan suasana relaksasi ala pekerja kebun yang sedang lembur di kamar tidur.</p>
+                            </div>
+                            <div class="flex items-center justify-between mt-auto pt-2 border-t border-sawit-light border-opacity-20">
+                                <div class="text-white text-sm sm:text-base font-bold bg-sawit-dark inline-block px-3 py-1 rounded-md border border-sawit-DEFAULT">Rp 12.500 / Pack</div>
+                                <button onclick="addToCart('p1', 'Dupa Aroma Sawit Bakar', 12500, 'img/1.png')" class="bg-sawit-neon hover:bg-white text-sawit-dark font-bold p-2 rounded-lg transition-colors shadow-lg hover:-translate-y-1 transform duration-300" title="Tambah"><i class="fas fa-cart-plus"></i></button>
+                            </div>
+                        </div>                    
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-start mb-8 glass-product p-4 rounded-xl group relative">
+                        <div class="overflow-hidden rounded-lg w-full sm:w-24 h-40 sm:h-24 mb-4 sm:mb-0 shrink-0 bg-gray-800">
+                            <img src="img/2.png" alt="Teh Pucuk Sawit" class="w-full h-full object-cover group-hover:scale-125 transition-transform duration-500" onerror="this.src='https://via.placeholder.com/150?text=Produk'">
+                        </div>
+                        <div class="sm:ml-6 flex-1 w-full flex flex-col justify-between h-full">
+                            <div>
+                                <h3 class="text-lg sm:text-xl mb-2 text-sawit-neon font-serif font-bold group-hover:text-white transition-colors">Teh Pucuk Daun Sawit</h3>
+                                <p class="text-gray-300 text-xs sm:text-sm font-light mb-3 leading-relaxed line-clamp-2">Sensasi rasa sepet ekstrem yang dijamin bikin mata langsung melek 48 jam.</p>
+                            </div>
+                            <div class="flex items-center justify-between mt-auto pt-2 border-t border-sawit-light border-opacity-20">
+                                <div class="text-white text-sm sm:text-base font-bold bg-sawit-dark inline-block px-3 py-1 rounded-md border border-sawit-DEFAULT">Rp 8.000 / Gelas</div>
+                                <button onclick="addToCart('p2', 'Teh Pucuk Daun Sawit', 8000, 'img/2.png')" class="bg-sawit-neon hover:bg-white text-sawit-dark font-bold p-2 rounded-lg transition-colors shadow-lg hover:-translate-y-1 transform duration-300" title="Tambah"><i class="fas fa-cart-plus"></i></button>
+                            </div>
+                        </div>                    
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-start mb-8 glass-product p-4 rounded-xl group relative">
+                        <div class="overflow-hidden rounded-lg w-full sm:w-24 h-40 sm:h-24 mb-4 sm:mb-0 shrink-0 bg-gray-800">
+                            <img src="img/3.png" alt="Parfum Sawit" class="w-full h-full object-cover group-hover:scale-125 transition-transform duration-500" onerror="this.src='https://via.placeholder.com/150?text=Produk'">
+                        </div>
+                        <div class="sm:ml-6 flex-1 w-full flex flex-col justify-between h-full">
+                            <div>
+                                <h3 class="text-lg sm:text-xl mb-2 text-sawit-neon font-serif font-bold group-hover:text-white transition-colors">Parfum "Eau de Sawit"</h3>
+                                <p class="text-gray-300 text-xs sm:text-sm font-light mb-3 leading-relaxed line-clamp-2">Aroma wangi khas tandan sawit matang dijemur matahari. Menempel kuat berminggu.</p>
+                            </div>
+                            <div class="flex items-center justify-between mt-auto pt-2 border-t border-sawit-light border-opacity-20">
+                                <div class="text-white text-sm sm:text-base font-bold bg-sawit-dark inline-block px-3 py-1 rounded-md border border-sawit-DEFAULT">Rp 45.000 / Botol</div>
+                                <button onclick="addToCart('p3', 'Parfum Eau de Sawit', 45000, 'img/3.png')" class="bg-sawit-neon hover:bg-white text-sawit-dark font-bold p-2 rounded-lg transition-colors shadow-lg hover:-translate-y-1 transform duration-300" title="Tambah"><i class="fas fa-cart-plus"></i></button>
+                            </div>
+                        </div>                    
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-start mb-8 glass-product p-4 rounded-xl group relative">
+                        <div class="overflow-hidden rounded-lg w-full sm:w-24 h-40 sm:h-24 mb-4 sm:mb-0 shrink-0 bg-gray-800">
+                            <img src="img/4.png" alt="Krupuk Sawit" class="w-full h-full object-cover group-hover:scale-125 transition-transform duration-500" onerror="this.src='https://via.placeholder.com/150?text=Produk'">
+                        </div>
+                        <div class="sm:ml-6 flex-1 w-full flex flex-col justify-between h-full">
+                            <div>
+                                <h3 class="text-lg sm:text-xl mb-2 text-sawit-neon font-serif font-bold group-hover:text-white transition-colors">Kerupuk Cangkang Sawit</h3>
+                                <p class="text-gray-300 text-xs sm:text-sm font-light mb-3 leading-relaxed line-clamp-2">Camilan super keras khusus bagi Anda yang ingin melatih rahang dan memiliki gigi baja.</p>
+                            </div>
+                            <div class="flex items-center justify-between mt-auto pt-2 border-t border-sawit-light border-opacity-20">
+                                <div class="text-white text-sm sm:text-base font-bold bg-sawit-dark inline-block px-3 py-1 rounded-md border border-sawit-DEFAULT">Rp 15.000 / Bungkus</div>
+                                <button onclick="addToCart('p4', 'Kerupuk Cangkang Sawit', 15000, 'img/4.png')" class="bg-sawit-neon hover:bg-white text-sawit-dark font-bold p-2 rounded-lg transition-colors shadow-lg hover:-translate-y-1 transform duration-300" title="Tambah"><i class="fas fa-cart-plus"></i></button>
+                            </div>
+                        </div>                    
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-start mb-2 glass-product p-4 rounded-xl group relative">
+                        <div class="overflow-hidden rounded-lg w-full sm:w-24 h-40 sm:h-24 mb-4 sm:mb-0 shrink-0 bg-gray-800">
+                            <img src="img/5.png" alt="Selai Sawit" class="w-full h-full object-cover group-hover:scale-125 transition-transform duration-500" onerror="this.src='https://via.placeholder.com/150?text=Produk'">
+                        </div>
+                        <div class="sm:ml-6 flex-1 w-full flex flex-col justify-between h-full">
+                            <div>
+                                <h3 class="text-lg sm:text-xl mb-2 text-sawit-neon font-serif font-bold group-hover:text-white transition-colors">Selai Brondolan Sawit</h3>
+                                <p class="text-gray-300 text-xs sm:text-sm font-light mb-3 leading-relaxed line-clamp-2">Olesan roti dengan tekstur berserat tinggi dan biji utuh untuk menantang sarapan Anda.</p>
+                            </div>
+                            <div class="flex items-center justify-between mt-auto pt-2 border-t border-sawit-light border-opacity-20">
+                                <div class="text-white text-sm sm:text-base font-bold bg-sawit-dark inline-block px-3 py-1 rounded-md border border-sawit-DEFAULT">Rp 22.500 / Jar</div>
+                                <button onclick="addToCart('p5', 'Selai Brondolan Sawit Mentah', 22500, 'img/5.png')" class="bg-sawit-neon hover:bg-white text-sawit-dark font-bold p-2 rounded-lg transition-colors shadow-lg hover:-translate-y-1 transform duration-300" title="Tambah"><i class="fas fa-cart-plus"></i></button>
+                            </div>
+                        </div>                    
+                    </div>
+                </div>
+
+                <!-- Kanan -->
+                <div class="glass-card rounded-2xl p-6 sm:p-10 reveal delay-100">
+                    <div class="flex flex-col sm:flex-row-reverse items-start mb-8 glass-product p-4 rounded-xl group relative">
+                        <div class="overflow-hidden rounded-lg w-full sm:w-24 h-40 sm:h-24 mb-4 sm:mb-0 shrink-0 bg-gray-800">
+                            <img src="img/6.png" alt="Es Krim Sawit" class="w-full h-full object-cover group-hover:scale-125 transition-transform duration-500" onerror="this.src='https://via.placeholder.com/150?text=Produk'">                    
+                        </div>
+                        <div class="sm:mr-6 flex-1 w-full flex flex-col justify-between h-full sm:text-right">
+                            <div>
+                                <h3 class="text-lg sm:text-xl mb-2 text-sawit-neon font-serif font-bold group-hover:text-white transition-colors">Es Krim Topping Sawit</h3>
+                                <p class="text-gray-300 text-xs sm:text-sm font-light mb-3 leading-relaxed line-clamp-2">Menggunakan minyak sawit curah murni yang menggugah selera.</p>
+                            </div>
+                            <div class="flex items-center justify-between sm:flex-row-reverse mt-auto pt-2 border-t border-sawit-light border-opacity-20">
+                                <div class="text-white text-sm sm:text-base font-bold bg-sawit-dark inline-block px-3 py-1 rounded-md border border-sawit-DEFAULT">Rp 25.000 / Cup</div>
+                                <button onclick="addToCart('p6', 'Es Krim Topping Minyak Sawit', 25000, 'img/6.png')" class="bg-sawit-neon hover:bg-white text-sawit-dark font-bold p-2 rounded-lg transition-colors shadow-lg hover:-translate-y-1 transform duration-300" title="Tambah"><i class="fas fa-cart-plus"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row-reverse items-start mb-8 glass-product p-4 rounded-xl group relative">
+                        <div class="overflow-hidden rounded-lg w-full sm:w-24 h-40 sm:h-24 mb-4 sm:mb-0 shrink-0 bg-gray-800">
+                            <img src="img/7.png" alt="Pomade Sawit" class="w-full h-full object-cover group-hover:scale-125 transition-transform duration-500" onerror="this.src='https://via.placeholder.com/150?text=Produk'">                    
+                        </div>
+                        <div class="sm:mr-6 flex-1 w-full flex flex-col justify-between h-full sm:text-right">
+                            <div>
+                                <h3 class="text-lg sm:text-xl mb-2 text-sawit-neon font-serif font-bold group-hover:text-white transition-colors">Pomade Getah Sawit</h3>
+                                <p class="text-gray-300 text-xs sm:text-sm font-light mb-3 leading-relaxed line-clamp-2">Minyak rambut badai. Dijamin rambut kaku tahan gempa menantang badai.</p>
+                            </div>
+                            <div class="flex items-center justify-between sm:flex-row-reverse mt-auto pt-2 border-t border-sawit-light border-opacity-20">
+                                <div class="text-white text-sm sm:text-base font-bold bg-sawit-dark inline-block px-3 py-1 rounded-md border border-sawit-DEFAULT">Rp 45.000 / Kaleng</div>
+                                <button onclick="addToCart('p7', 'Pomade Getah Pelepah Sawit', 45000, 'img/7.png')" class="bg-sawit-neon hover:bg-white text-sawit-dark font-bold p-2 rounded-lg transition-colors shadow-lg hover:-translate-y-1 transform duration-300" title="Tambah"><i class="fas fa-cart-plus"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row-reverse items-start mb-8 glass-product p-4 rounded-xl group relative">
+                        <div class="overflow-hidden rounded-lg w-full sm:w-24 h-40 sm:h-24 mb-4 sm:mb-0 shrink-0 bg-gray-800">
+                            <img src="img/8.png" alt="Permen Sawit" class="w-full h-full object-cover group-hover:scale-125 transition-transform duration-500" onerror="this.src='https://via.placeholder.com/150?text=Produk'">                 
+                        </div>
+                        <div class="sm:mr-6 flex-1 w-full flex flex-col justify-between h-full sm:text-right">
+                            <div>
+                                <h3 class="text-lg sm:text-xl mb-2 text-sawit-neon font-serif font-bold group-hover:text-white transition-colors">Permen Karet Batang</h3>
+                                <p class="text-gray-300 text-xs sm:text-sm font-light mb-3 leading-relaxed line-clamp-2">Bisa dikunyah sampai berjam-jam tanpa hancur. Rasanya tawar, luar biasa berat.</p>
+                            </div>
+                            <div class="flex items-center justify-between sm:flex-row-reverse mt-auto pt-2 border-t border-sawit-light border-opacity-20">
+                                <div class="text-white text-sm sm:text-base font-bold bg-sawit-dark inline-block px-3 py-1 rounded-md border border-sawit-DEFAULT">Rp 25.000 / Kotak</div>
+                                <button onclick="addToCart('p8', 'Permen Karet Batang Sawit', 25000, 'img/8.png')" class="bg-sawit-neon hover:bg-white text-sawit-dark font-bold p-2 rounded-lg transition-colors shadow-lg hover:-translate-y-1 transform duration-300" title="Tambah"><i class="fas fa-cart-plus"></i></button>
+                            </div>
+                        </div>   
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row-reverse items-start mb-8 glass-product p-4 rounded-xl group relative">
+                        <div class="overflow-hidden rounded-lg w-full sm:w-24 h-40 sm:h-24 mb-4 sm:mb-0 shrink-0 bg-gray-800">
+                            <img src="img/9.png" alt="Bantal Sawit" class="w-full h-full object-cover group-hover:scale-125 transition-transform duration-500" onerror="this.src='https://via.placeholder.com/150?text=Produk'">                 
+                        </div>
+                        <div class="sm:mr-6 flex-1 w-full flex flex-col justify-between h-full sm:text-right">
+                            <div>
+                                <h3 class="text-lg sm:text-xl mb-2 text-sawit-neon font-serif font-bold group-hover:text-white transition-colors">Bantal Serabut Ampas</h3>
+                                <p class="text-gray-300 text-xs sm:text-sm font-light mb-3 leading-relaxed line-clamp-2">Diisi penuh dengan serabut sisa perasan sawit. Hangat, menusuk-nusuk, anti-mainstream.</p>
+                            </div>
+                            <div class="flex items-center justify-between sm:flex-row-reverse mt-auto pt-2 border-t border-sawit-light border-opacity-20">
+                                <div class="text-white text-sm sm:text-base font-bold bg-sawit-dark inline-block px-3 py-1 rounded-md border border-sawit-DEFAULT">Rp 75.000 / Bantal</div>
+                                <button onclick="addToCart('p9', 'Bantal Serabut Ampas Sawit', 75000, 'img/9.png')" class="bg-sawit-neon hover:bg-white text-sawit-dark font-bold p-2 rounded-lg transition-colors shadow-lg hover:-translate-y-1 transform duration-300" title="Tambah"><i class="fas fa-cart-plus"></i></button>
+                            </div>
+                        </div>   
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row-reverse items-start mb-2 glass-product p-4 rounded-xl group relative">
+                        <div class="overflow-hidden rounded-lg w-full sm:w-24 h-40 sm:h-24 mb-4 sm:mb-0 shrink-0 bg-gray-800">
+                            <img src="img/10.png" alt="Air Akar Sawit" class="w-full h-full object-cover group-hover:scale-125 transition-transform duration-500" onerror="this.src='https://via.placeholder.com/150?text=Produk'">                 
+                        </div>
+                        <div class="sm:mr-6 flex-1 w-full flex flex-col justify-between h-full sm:text-right">
+                            <div>
+                                <h3 class="text-lg sm:text-xl mb-2 text-sawit-neon font-serif font-bold group-hover:text-white transition-colors">Air Rebusan Akar</h3>
+                                <p class="text-gray-300 text-xs sm:text-sm font-light mb-3 leading-relaxed line-clamp-2">Minuman isotonik alami bernuansa tanah gambut. Cocok diminum memanjat pohon.</p>
+                            </div>
+                            <div class="flex items-center justify-between sm:flex-row-reverse mt-auto pt-2 border-t border-sawit-light border-opacity-20">
+                                <div class="text-white text-sm sm:text-base font-bold bg-sawit-dark inline-block px-3 py-1 rounded-md border border-sawit-DEFAULT">Rp 15.000 / Botol</div>
+                                <button onclick="addToCart('p10', 'Air Rebusan Akar Sawit', 15000, 'img/10.png')" class="bg-sawit-neon hover:bg-white text-sawit-dark font-bold p-2 rounded-lg transition-colors shadow-lg hover:-translate-y-1 transform duration-300" title="Tambah"><i class="fas fa-cart-plus"></i></button>
+                            </div>
+                        </div>   
+                    </div>
+
+                </div>
+
+            </div>
+        </div>        
+    </div>
+
+    <!-- About Section with LOGO -->
+    <div id="about" class="parallax-window relative" data-parallax="scroll" data-image-src="img/lop sawit.gif">
+        <div class="absolute inset-0 bg-gradient-to-t from-sawit-dark to-transparent opacity-80 mix-blend-multiply"></div>
+        <div class="container mx-auto px-4 py-24 sm:py-32 relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
+            
+            <!-- Tambahan Gambar Logo di Kiri -->
+            <div class="w-full lg:w-1/2 flex justify-center lg:justify-start reveal">
+                <img src="img/logo.png" alt="Logo Wowok Nature" class="w-64 sm:w-80 lg:w-full max-w-md object-contain drop-shadow-[0_0_30px_rgba(52,211,153,0.5)] floating" onerror="this.src='https://via.placeholder.com/400?text=LOGO'">
+            </div>
+
+            <!-- Teks Di Balik Layar -->
+            <div class="glass-card w-full lg:w-1/2 p-10 sm:p-14 rounded-3xl reveal delay-100 shadow-[0_0_40px_rgba(4,120,87,0.3)]">
+                <div class="mb-8 relative">
+                    <h2 class="text-sawit-neon text-4xl sm:text-5xl font-serif font-bold mb-4 drop-shadow-md">Di Balik Layar</h2>
+                    <div class="w-20 h-1 bg-sawit-light rounded"></div>
+                </div>
+                <p class="mb-6 text-base sm:text-lg text-gray-200 leading-relaxed font-light">
+                    <strong>Wowok Nature</strong> bukan sekadar merk, tapi sebuah gerakan. Berawal dari kecintaan Wowok memeluk pohon sawit, kami menyadari bahwa setiap bagian dari pohon ini—dari akar sampai pucuk—bisa diolah menjadi sesuatu yang tidak terpikirkan oleh orang normal.
+                </p>
+                <p class="mb-10 text-base sm:text-lg text-gray-200 leading-relaxed font-light">
+                    Dipimpin oleh visi dari <strong>Rifqi Eka (MAN 1 Yogyakarta)</strong>, kami terus berkomitmen menghadirkan produk yang membuat pelanggan kami berkata: "Hah, beneran ada yang jual beginian?".
+                </p>
+                <button onclick="toggleCart()" class="inline-flex items-center bg-sawit-light text-white font-bold text-lg py-4 px-8 rounded-full hover:bg-sawit-neon hover:text-sawit-dark transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-sawit-neon/50">
+                    <i class="fas fa-shopping-bag mr-3"></i>
+                    Belanja Sekarang
+                </button>
+            </div>            
+        </div>        
+    </div>
+
+    <!-- Kebijakan & Privasi Section -->
+    <div id="kebijakan" class="parallax-window relative" data-parallax="scroll" data-image-src="img/lop sawit.gif">
+        <div class="absolute inset-0 bg-sawit-dark opacity-80 mix-blend-multiply"></div>
+        <div class="container mx-auto px-4 py-24 sm:py-32 relative z-10">
+            <div class="text-center mb-16 reveal">
+                <h2 class="bg-sawit-dark bg-opacity-90 border border-sawit-neon text-sawit-neon py-4 px-10 text-3xl md:text-4xl font-serif font-bold inline-block rounded-xl shadow-2xl backdrop-blur-md">Kebijakan Pembeli</h2>
+            </div>
+            
+            <div class="space-y-6 max-w-4xl mx-auto">
+                <div class="glass-card rounded-2xl p-6 sm:p-8 reveal">
+                    <h3 class="text-xl sm:text-2xl text-sawit-neon font-serif font-bold mb-4 flex items-center"><i class="fas fa-file-contract mr-3"></i> Syarat & Ketentuan Pemesanan</h3>
+                    <ul class="list-disc list-inside text-gray-300 text-sm sm:text-base leading-relaxed space-y-2 font-light">
+                        <li>Semua pesanan diproses berdasarkan urutan antrean sistem dari gudang pusat di Ibu Kota Nusantara (IKN).</li>
+                        <li>Total harga yang tertera di keranjang saat checkout akan menghitung <strong>Biaya Admin</strong> dan <strong>Estimasi Ongkir Otomatis</strong> berdasarkan titik peta yang Anda klik.</li>
+                        <li>Pesanan yang telah dibayar lunas dan diproses resi pengirimannya tidak dapat dibatalkan secara sepihak.</li>
+                    </ul>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-6 sm:p-8 reveal delay-100">
+                    <h3 class="text-xl sm:text-2xl text-sawit-neon font-serif font-bold mb-4 flex items-center"><i class="fas fa-user-shield mr-3"></i> Perlindungan & Kebijakan Privasi</h3>
+                    <p class="text-gray-300 text-sm sm:text-base leading-relaxed font-light mb-3">Wowok Nature berkomitmen penuh menjaga keamanan data pelanggan kami:</p>
+                    <ul class="list-disc list-inside text-gray-300 text-sm sm:text-base leading-relaxed space-y-2 font-light">
+                        <li>Data pribadi yang Anda masukkan murni digunakan hanya untuk logistik pengiriman paket.</li>
+                        <li>Kami menjamin 100% data pelanggan <strong>tidak akan pernah diperjualbelikan</strong> kepada pihak ketiga.</li>
+                    </ul>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-6 sm:p-8 reveal delay-200">
+                    <h3 class="text-xl sm:text-2xl text-sawit-neon font-serif font-bold mb-4 flex items-center"><i class="fas fa-box-open mr-3"></i> Kebijakan Komplain & Pengembalian Dana</h3>
+                    <ul class="list-disc list-inside text-gray-300 text-sm sm:text-base leading-relaxed space-y-2 font-light">
+                        <li>Komplain barang wajib menyertakan <strong>Video Unboxing utuh tanpa cut/jeda</strong>.</li>
+                        <li>Batas maksimal klaim komplain adalah <strong>1x24 jam</strong> semenjak status resi paket diterima.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div id="contact" class="parallax-window relative" data-parallax="scroll" data-image-src="img/lop sawit.gif">
+        <div class="absolute inset-0 bg-gray-900 opacity-90"></div>
+        <div class="container mx-auto px-4 pt-24 pb-32 sm:py-32 relative z-10">
+            <div class="flex flex-col lg:flex-row gap-10 items-stretch">
+                <!-- Info Kontak -->
+                <div class="flex-1 rounded-3xl px-8 py-12 glass-card reveal">
+                    <h2 class="text-3xl sm:text-4xl mb-8 text-sawit-neon font-serif font-bold border-b border-sawit-DEFAULT pb-4">Markas Besar</h2>
+                    <p class="mb-8 text-base sm:text-lg leading-relaxed text-gray-300">
+                        <span class="text-2xl mr-2">📍</span> <strong>Gudang Utama Nusantara Wowok Nature</strong><br>
+                        <span class="ml-8 block mt-2">Kawasan Inti Pusat Pemerintahan (KIPP),<br>
+                        Ibu Kota Nusantara (IKN),<br>
+                        Kalimantan Timur (Pusat Inovasi Sawit Nusantara)</span>   
+                    </p>
+                    <p class="mb-10 text-base sm:text-lg text-gray-300">
+                        <span class="flex items-center mb-4"><span class="text-xl mr-3">📞</span> Tel/WA: <a href="tel:085842365698" class="ml-2 hover:text-sawit-neon transition-colors font-bold text-white">0858-4236-5698</a></span>
+                        <span class="flex items-center"><span class="text-xl mr-3">📧</span> Email: <a href="mailto:r.e.ramadhani26@gmail.com" class="ml-2 hover:text-sawit-neon transition-colors font-bold text-white break-all">r.e.ramadhani26@gmail.com</a></span>                        
+                    </p>
+                    <div class="mt-auto pt-4">
+                        <a href="https://maps.app.goo.gl/Df3t1V8Q2a9B4Yjn7" target="_blank" class="inline-flex items-center text-white text-lg px-8 py-4 rounded-xl transition-all duration-300 bg-sawit-DEFAULT hover:bg-sawit-light border border-sawit-neon hover:shadow-[0_0_15px_rgba(52,211,153,0.5)]">
+                            <i class="fas fa-map-marker-alt mr-3"></i>
+                            Cek Lokasi Maps Pusat IKN
+                        </a>
+                    </div>                    
+                </div>
+                
+                <!-- Form Request -->
+                <div class="flex-1 rounded-3xl px-8 py-12 glass-card reveal delay-100">
+                    <h2 class="text-3xl sm:text-4xl mb-8 text-white font-serif font-bold">Request Produk Lebih Aneh?</h2>
+                    <form action="" method="POST" class="text-base sm:text-lg flex flex-col gap-6">
+                        <div class="relative">
+                            <input type="text" name="name" class="w-full bg-transparent border-b-2 border-sawit-dark text-white px-2 py-3 focus:outline-none focus:border-sawit-neon transition-colors peer placeholder-transparent" placeholder="Nama Anda" required="" id="req_name" />
+                            <label for="req_name" class="absolute left-2 -top-3.5 text-sawit-neon text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-sawit-neon peer-focus:text-sm">Nama Anda</label>
+                        </div>
+                        <div class="relative">
+                            <input type="email" name="email" class="w-full bg-transparent border-b-2 border-sawit-dark text-white px-2 py-3 focus:outline-none focus:border-sawit-neon transition-colors peer placeholder-transparent" placeholder="Email Anda" required="" id="req_email" />
+                            <label for="req_email" class="absolute left-2 -top-3.5 text-sawit-neon text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-sawit-neon peer-focus:text-sm">Email Anda</label>
+                        </div>
+                        <div class="relative mt-2">
+                            <textarea rows="4" name="message" class="w-full bg-transparent border-2 border-sawit-dark text-white px-4 py-3 rounded-xl focus:outline-none focus:border-sawit-neon transition-colors peer placeholder-transparent resize-none" placeholder="Sebutkan olahan sawit nyeleneh yang Anda inginkan..." required="" id="req_message"></textarea>
+                            <label for="req_message" class="absolute left-4 -top-3 bg-sawit-dark px-1 text-sawit-neon text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3 peer-placeholder-shown:bg-transparent peer-focus:-top-3 peer-focus:bg-sawit-dark peer-focus:text-sawit-neon peer-focus:text-sm">Sebutkan olahan sawit nyeleneh yang Anda inginkan...</label>
+                        </div>
+                        <div class="text-right mt-4">
+                            <button type="button" class="bg-sawit-neon text-sawit-dark font-bold px-8 py-3 rounded-xl hover:bg-white transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-sawit-neon/50">Kirim Permintaan</button>
+                        </div>                        
+                    </form>
+                </div>
+            </div>
+        </div> 
+        
+        <footer class="absolute bottom-0 left-0 w-full glass-nav border-t border-sawit-dark">
+            <div class="text-gray-300 container mx-auto px-6 py-5 text-sm sm:text-base flex flex-col md:flex-row justify-between items-center">
+                <span>© 2026 <strong class="text-sawit-neon font-serif">WOWOK NATURE</strong> - Pelopor Sawit Nyeleneh Nusantara.</span>
+                <span class="mt-2 md:mt-0">Dibuat oleh: <strong class="text-white">RIFQI EKA (MAN 1 YK)</strong></span>
+            </div>                
+        </footer>        
+    </div>
+
+    <!-- ============================================== -->
+    <!-- SIDEBAR KERANJANG -->
+    <!-- ============================================== -->
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full sm:w-96 glass-sidebar z-50 transform translate-x-full transition-transform duration-500 shadow-[-10px_0_30px_rgba(0,0,0,0.5)] flex flex-col">
+        <div class="p-6 border-b border-sawit-light border-opacity-30 flex justify-between items-center bg-sawit-dark bg-opacity-50">
+            <h2 class="text-2xl font-serif font-bold text-sawit-neon flex items-center">
+                <i class="fas fa-shopping-bag mr-3"></i> Keranjang
+            </h2>
+            <button onclick="toggleCart()" class="text-gray-400 hover:text-white transition-colors text-2xl">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div id="cart-items-container" class="flex-1 overflow-y-auto p-4 cart-scroll">
+            <!-- Isi Keranjang akan diisi Javascript -->
+        </div>
+
+        <div class="p-6 bg-sawit-dark border-t border-sawit-light border-opacity-30">
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-gray-300 font-medium">Subtotal Barang:</span>
+                <span id="cart-total-price" class="text-2xl font-bold text-sawit-neon">Rp 0</span>
+            </div>
+            <button onclick="openCheckoutModal()" class="w-full bg-sawit-neon hover:bg-white text-sawit-dark font-bold text-lg py-4 rounded-xl transition-colors shadow-[0_0_15px_rgba(52,211,153,0.3)] disabled:opacity-50 disabled:cursor-not-allowed" id="btn-lanjut-checkout">
+                Lanjut Checkout <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+    </div>
+    <div id="cart-overlay" onclick="toggleCart()" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden backdrop-blur-sm transition-opacity"></div>
+
+    <!-- ============================================== -->
+    <!-- MODAL CHECKOUT COMPREHENSIVE -->
+    <!-- ============================================== -->
+    <div id="checkout-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="absolute inset-0 bg-black bg-opacity-70 backdrop-blur-sm" onclick="closeCheckoutModal()"></div>
+        <div class="glass-card relative w-full max-w-2xl mx-4 sm:mx-0 p-6 sm:p-8 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto cart-scroll">
+            <button onclick="closeCheckoutModal()" class="absolute top-4 right-5 text-gray-400 hover:text-white text-xl transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="text-2xl sm:text-3xl text-sawit-neon font-serif font-bold mb-6 border-b border-sawit-light border-opacity-20 pb-3">Informasi Pengiriman</h2>
+            
+            <form id="checkout-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm text-gray-300 mb-1">Nama Lengkap Penerima</label>
+                    <input type="text" id="chk_name" required class="w-full bg-black bg-opacity-40 border border-sawit-dark rounded-lg px-4 py-3 text-white focus:outline-none focus:border-sawit-neon transition-colors">
+                </div>
+                
+                <!-- Fitur Alamat & Link Maps (INTERACTIVE) -->
+                <div class="bg-sawit-dark bg-opacity-30 border border-sawit-DEFAULT p-4 rounded-xl">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-2 gap-2">
+                        <label class="block text-sm text-gray-200 font-bold">Lokasi Pengiriman</label>
+                        <button type="button" onclick="openMapModal()" class="bg-sawit-neon text-sawit-dark font-bold text-xs px-3 py-2 rounded shadow hover:bg-white transition flex items-center">
+                            <i class="fas fa-map-marked-alt mr-2"></i> Buka Peta Interaktif
+                        </button>
+                    </div>
+                    
+                    <textarea id="chk_address" rows="3" required class="w-full bg-black bg-opacity-50 border border-sawit-dark rounded-lg px-4 py-3 text-white focus:outline-none focus:border-sawit-neon transition-colors resize-none" placeholder="Klik tombol 'Buka Peta Interaktif' untuk melacak alamat Anda secara otomatis, atau ketik manual disini..."></textarea>
+                    
+                    <input type="url" id="chk_maps_link" class="w-full bg-black bg-opacity-30 border border-sawit-dark rounded-lg px-4 py-2 mt-2 text-gray-300 text-sm focus:outline-none focus:border-sawit-neon transition-colors" placeholder="Link Google Maps otomatis akan terisi disini" readonly>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-gray-300 mb-1">Jasa Ekspedisi Kurir</label>
+                        <select id="chk_courier" onchange="calculateOngkir()" class="w-full bg-black bg-opacity-60 border border-sawit-dark rounded-lg px-4 py-3 text-white focus:outline-none focus:border-sawit-neon transition-colors">
+                            <optgroup label="Kurir Domestik (Indonesia)">
+                                <option value="J&T Express">J&T Express</option>
+                                <option value="JNE Express">JNE Express</option>
+                                <option value="Sicepat Ekspres">Sicepat Ekspres</option>
+                                <option value="Pos Indonesia">Pos Indonesia</option>
+                                <option value="Anteraja">Anteraja</option>
+                                <option value="Ninja Xpress">Ninja Xpress</option>
+                                <option value="Wahana">Wahana Logistik</option>
+                                <option value="ID Express">ID Express</option>
+                                <option value="GoSend / GrabExpress">GoSend / GrabExpress (Instant)</option>
+                            </optgroup>
+                            <optgroup label="Kurir Internasional (Global)">
+                                <option value="DHL Express">DHL Express Global</option>
+                                <option value="FedEx">FedEx International</option>
+                                <option value="UPS">UPS Worldwide</option>
+                                <option value="Aramex">Aramex</option>
+                                <option value="EMS Pos Indonesia">EMS Pos Indonesia</option>
+                                <option value="Singapore Post">Singapore Post</option>
+                                <option value="China Post">China Post</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-gray-300 mb-1">Metode Pembayaran</label>
+                        <select id="chk_payment" onchange="handlePaymentChange(this.value)" class="w-full bg-black bg-opacity-60 border border-sawit-dark rounded-lg px-4 py-3 text-white focus:outline-none focus:border-sawit-neon transition-colors">
+                            <optgroup label="Pembayaran Lokal">
+                                <option value="QRIS">QRIS (Semua Bank / E-Wallet)</option>
+                                <option value="COD (Bayar di Tempat)">Bayar di Tempat (COD)</option>
+                                <option value="GoPay / OVO / DANA">GoPay / OVO / DANA / ShopeePay</option>
+                                <option value="Bank BCA">Transfer Bank BCA</option>
+                                <option value="Bank Mandiri">Transfer Bank Mandiri</option>
+                                <option value="Bank BRI">Transfer Bank BRI</option>
+                                <option value="Bank BNI">Transfer Bank BNI</option>
+                                <option value="Bank BSI">Transfer Bank Syariah Indonesia (BSI)</option>
+                                <option value="Indomaret / Alfamart">Gerai Indomaret / Alfamart</option>
+                            </optgroup>
+                            <optgroup label="Pembayaran Internasional">
+                                <option value="PayPal">PayPal</option>
+                                <option value="Credit Card">Credit Card (Visa/Mastercard)</option>
+                                <option value="Wise">Wise (TransferWise)</option>
+                                <option value="Western Union">Western Union</option>
+                                <option value="Cryptocurrency">Cryptocurrency (USDT/Bitcoin)</option>
+                                <option value="Payoneer">Payoneer</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="bg-sawit-dark bg-opacity-40 p-4 rounded-xl border border-sawit-light border-opacity-20 text-xs sm:text-sm text-gray-300 min-h-[60px] flex items-center">
+                    <p id="payment-text">⚡ Instruksi pembayaran <strong>QRIS/E-Wallet</strong> akan dikirimkan otomatis oleh Admin via WhatsApp.</p>
+                </div>
+
+                <!-- Info Kalkulasi Admin & Ongkir Cerdas -->
+                <div class="bg-black bg-opacity-50 p-4 rounded-xl border border-sawit-dark mt-2">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm text-gray-400">Total Harga Barang:</span>
+                        <span id="modal-subtotal" class="font-bold text-white">Rp 0</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm text-gray-400">Biaya Layanan Admin:</span>
+                        <span id="modal-admin" class="font-bold text-gray-300">Rp 2.500</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm text-gray-400">Jarak Deteksi ke Gudang IKN:</span>
+                        <span id="modal-distance" class="text-sawit-neon font-bold text-sm">Belum di-set (<a href="javascript:void(0)" onclick="openMapModal()" class="underline text-white">Buka Peta</a>)</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm text-gray-400">Estimasi Ongkos Kirim:</span>
+                        <span id="modal-ongkir" class="font-bold text-gray-300">Rp 0</span>
+                    </div>
+                    <!-- Baris Baru Estimasi Kedatangan (TANGGAL) -->
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-sm text-gray-400 pt-1">Estimasi Kedatangan:</span>
+                        <span id="modal-estimasi" class="font-bold text-sawit-neon text-right max-w-[65%] text-xs sm:text-sm">Hitung otomatis...</span>
+                    </div>
+                    <div class="flex justify-between items-center border-t border-gray-700 mt-2 pt-2">
+                        <span class="font-medium text-sawit-neon text-lg">Total Tagihan:</span>
+                        <span id="modal-total" class="font-bold text-2xl text-sawit-neon">Rp 0</span>
+                    </div>
+                </div>
+
+                <div class="flex items-start mt-4">
+                    <input type="checkbox" id="chk_agree" class="mt-1 mr-2" required>
+                    <label for="chk_agree" class="text-xs text-gray-400">Saya telah menyetujui seluruh isi dari <strong>Syarat & Ketentuan</strong> pembelanjaan online Wowok Nature.</label>
+                </div>
+
+                <button type="button" onclick="processCheckoutWA()" class="w-full mt-4 bg-green-500 hover:bg-green-400 text-white font-bold py-4 rounded-xl transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-green-500/50">
+                    <i class="fab fa-whatsapp text-2xl mr-3"></i> Checkout & Lanjut ke WhatsApp
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- INTERACTIVE MAP MODAL (LEAFLET.JS) -->
+    <!-- ============================================== -->
+    <div id="map-modal" class="fixed inset-0 z-[60] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="absolute inset-0 bg-black bg-opacity-80 backdrop-blur-md" onclick="closeMapModal()"></div>
+        <div class="glass-card relative w-full max-w-3xl mx-4 sm:mx-0 p-4 sm:p-6 rounded-2xl shadow-2xl flex flex-col h-[80vh]">
+            <h2 class="text-xl sm:text-2xl text-sawit-neon font-serif font-bold mb-2"><i class="fas fa-map-pin mr-2"></i> Pilih Titik Lokasi Rumah</h2>
+            <p class="text-xs text-gray-300 mb-4">Pindahkan titik penanda ke lokasi rumah Anda. Sistem akan melacak alamat dan mengkalkulasi tarif ongkos kirim otomatis berdasarkan jarak Kilometer.</p>
+            
+            <div id="leaflet-map" class="w-full flex-1 rounded-xl border-2 border-sawit-DEFAULT mb-4 bg-gray-800 relative z-10" style="min-height: 300px;"></div>
+            
+            <div id="map-status" class="bg-black bg-opacity-50 p-3 rounded-lg border border-sawit-dark text-sm text-gray-300 flex flex-col justify-center min-h-[60px]">
+                <span id="map-address-display" class="font-medium text-white">Silakan klik area di dalam peta untuk mulai melacak lokasi Anda...</span>
+            </div>
+
+            <div class="flex gap-4 mt-4">
+                <button onclick="closeMapModal()" class="flex-1 bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 rounded-xl transition">Batal</button>
+                <button onclick="confirmLocation()" id="btn-confirm-location" class="flex-1 bg-sawit-neon hover:bg-white text-sawit-dark font-bold py-3 rounded-xl transition shadow-[0_0_15px_rgba(52,211,153,0.4)] disabled:opacity-50" disabled>Gunakan Titik Ini</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- SCRIPT WAJIB (CDN LENGKAP ANTI ERROR) -->
+    <!-- ============================================== -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/singlePageNav/1.2.0/jquery.singlePageNav.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/parallax.js/1.5.0/parallax.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    
+    <script>
+        // ==== SOUND EFFECT KLIK GLOBAL ====
+        // Audio dipasang di satu tempat (tidak akan saling menumpuk)
+        const globalClickSound = new Audio('antek.mp3');
+        document.addEventListener('click', function() {
+            globalClickSound.currentTime = 0; // Mengulang dari detik ke-0 setiap kali diklik
+            globalClickSound.play().catch(function(err) {
+                // Ignore error (biasanya muncul karena browser melarang autoplay sebelum interaksi user)
+            });
+        });
+
+        // ==== ANIMASI DAN UI BAWAAN ====
+        function checkAndShowHideMenu() {
+            if(window.innerWidth < 768) { $('#tm-nav ul').addClass('hidden'); } 
+            else { $('#tm-nav ul').removeClass('hidden'); }
+        }
+        $(function(){
+            var tmNav = $('#tm-nav');
+            if($.fn.singlePageNav) {
+                tmNav.singlePageNav({ offset: 60, filter: ':not(.external)', updateHash: false });
+            }
+            checkAndShowHideMenu();
+            window.addEventListener('resize', checkAndShowHideMenu);
+            $('#menu-toggle').click(function(){ $('#tm-nav ul').toggleClass('hidden'); });
+            $('#tm-nav ul li').click(function(){ if(window.innerWidth < 768) $('#tm-nav ul').addClass('hidden'); });
+            
+            $(document).scroll(function() {
+                var distanceFromTop = $(document).scrollTop();
+                if(distanceFromTop > 50) {
+                    tmNav.addClass('shadow-lg bg-sawit-dark bg-opacity-90 border-b border-sawit-DEFAULT').removeClass('glass-nav');
+                } else {
+                    tmNav.removeClass('shadow-lg bg-sawit-dark bg-opacity-90 border-b border-sawit-DEFAULT').addClass('glass-nav');
+                }
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const reveals = document.querySelectorAll('.reveal');
+            const revealOnScroll = () => {
+                const windowHeight = window.innerHeight;
+                reveals.forEach((reveal) => {
+                    if (reveal.getBoundingClientRect().top < windowHeight - 100) reveal.classList.add('active');
+                });
+            };
+            window.addEventListener('scroll', revealOnScroll);
+            revealOnScroll();
+        });
+
+        // ==== LOGIKA KERANJANG BELANJA (CART) ====
+        let cart = JSON.parse(localStorage.getItem('wowok_cart')) || [];
+        let TOTAL_BELANJA_BARANG = 0;
+        const BIAYA_ADMIN = 2500;
+        window.FINAL_ONGKIR = 0;
+        window.GRAND_TOTAL = 0;
+        window.FINAL_ESTIMASI = ""; // Variabel global untuk tanggal estimasi di WA
+
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+        }
+
+        function toggleCart() {
+            const sidebar = document.getElementById('cart-sidebar');
+            const overlay = document.getElementById('cart-overlay');
+            if (sidebar.classList.contains('translate-x-full')) {
+                sidebar.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; 
+            } else {
+                sidebar.classList.add('translate-x-full');
+                overlay.classList.add('hidden');
+                document.body.style.overflow = 'auto'; 
+            }
+        }
+
+        function addToCart(id, name, price, img) {
+            const existingItem = cart.find(item => item.id === id);
+            if (existingItem) existingItem.qty += 1;
+            else cart.push({ id, name, price, img, qty: 1 });
+            saveCart();
+            if(document.getElementById('cart-sidebar').classList.contains('translate-x-full')) toggleCart();
+        }
+
+        function changeQty(id, delta) {
+            const item = cart.find(item => item.id === id);
+            if (item) {
+                item.qty += delta;
+                if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+                saveCart();
+            }
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(i => i.id !== id);
+            saveCart();
+        }
+
+        function saveCart() {
+            localStorage.setItem('wowok_cart', JSON.stringify(cart));
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-items-container');
+            if(!container) return; 
+            
+            container.innerHTML = '';
+            let totalQty = 0; 
+            TOTAL_BELANJA_BARANG = 0;
+            
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div id="empty-cart-msg" class="text-center text-gray-400 mt-20">
+                        <i class="fas fa-box-open text-5xl mb-4 opacity-50"></i>
+                        <p>Keranjang masih kosong.</p>
+                        <p class="text-sm mt-2">Pilih produk nyeleneh favoritmu!</p>
+                    </div>
+                `;
+                document.getElementById('cart-badge').classList.add('hidden');
+                document.getElementById('btn-lanjut-checkout').disabled = true;
+                document.getElementById('cart-total-price').innerText = "Rp 0";
+            } else {
+                document.getElementById('cart-badge').classList.remove('hidden');
+                document.getElementById('btn-lanjut-checkout').disabled = false;
+                
+                cart.forEach(item => {
+                    totalQty += item.qty;
+                    TOTAL_BELANJA_BARANG += (item.price * item.qty);
+                    
+                    const itemHTML = `
+                        <div class="flex items-center bg-black bg-opacity-40 p-3 rounded-xl mb-3 border border-sawit-dark">
+                            <img src="${item.img}" class="w-16 h-16 object-cover rounded-lg mr-3" onerror="this.src='https://via.placeholder.com/150'">
+                            <div class="flex-1">
+                                <h4 class="text-sm font-bold text-white mb-1 leading-tight">${item.name}</h4>
+                                <div class="text-sawit-neon text-xs font-semibold mb-2">${formatRupiah(item.price)}</div>
+                                <div class="flex items-center">
+                                    <button onclick="changeQty('${item.id}', -1)" class="bg-gray-700 w-6 h-6 rounded text-white hover:bg-gray-600 transition">-</button>
+                                    <span class="mx-3 text-sm font-bold">${item.qty}</span>
+                                    <button onclick="changeQty('${item.id}', 1)" class="bg-sawit-DEFAULT w-6 h-6 rounded text-white hover:bg-sawit-light transition">+</button>
+                                </div>
+                            </div>
+                            <button onclick="removeFromCart('${item.id}')" class="text-red-500 hover:text-red-400 ml-2 p-2"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', itemHTML);
+                });
+            }
+            document.getElementById('cart-badge').innerText = totalQty;
+            document.getElementById('cart-total-price').innerText = formatRupiah(TOTAL_BELANJA_BARANG);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { renderCart(); });
+
+
+        // ==== LOGIKA MAPS & ONGKIR CERDAS (HAREVSINE) ====
+        const IKN_COORD = { lat: -0.9730, lng: 116.7090 }; 
+        let userDistanceKM = 0;
+        let mapInstance = null;
+        let mapMarker = null;
+        let tempAddressData = { address: "", link: "", lat: 0, lng: 0 };
+
+        function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+            var R = 6371; 
+            var dLat = (lat2-lat1) * (Math.PI/180);
+            var dLon = (lon2-lon1) * (Math.PI/180); 
+            var a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
+                    Math.cos(lat1 * (Math.PI/180)) * Math.cos(lat2 * (Math.PI/180)) * 
+                    Math.sin(dLon/2) * Math.sin(dLon/2); 
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+            return R * c; 
+        }
+
+        // --- HELPER UNTUK ESTIMASI TANGGAL ---
+        // Mengubah "1-2 Hari" menjadi format tanggal akurat "Rabu, 24 Mei - Kamis, 25 Mei"
+        function getEstimasiTanggal(minHari, maxHari) {
+            const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            const today = new Date();
+            
+            // Khusus untuk kurir instant (0 Hari)
+            if (minHari === 0 && maxHari === 0) {
+                const todayStr = today.toLocaleDateString('id-ID', options);
+                return `Hari ini (${todayStr}) dalam 1 - 3 Jam`;
+            }
+
+            // Hitung tanggal minimum
+            const minDate = new Date(today);
+            minDate.setDate(today.getDate() + minHari);
+            const minDateStr = minDate.toLocaleDateString('id-ID', options);
+
+            // Hitung tanggal maksimum
+            const maxDate = new Date(today);
+            maxDate.setDate(today.getDate() + maxHari);
+            const maxDateStr = maxDate.toLocaleDateString('id-ID', options);
+
+            return `${minDateStr} - ${maxDateStr}`;
+        }
+
+        // --- UPDATE TEKS PEMBAYARAN DINAMIS ---
+        function handlePaymentChange(val) {
+            const textEl = document.getElementById('payment-text');
+            if (val.includes('QRIS') || val.includes('GoPay')) {
+                textEl.innerHTML = "⚡ Instruksi pembayaran <strong>QRIS / E-Wallet</strong> akan dikirimkan otomatis oleh Admin via WhatsApp.";
+            } else if (val.includes('COD')) {
+                textEl.innerHTML = "📦 <strong>Bayar di Tempat (COD)</strong>. Siapkan uang tunai saat kurir tiba di lokasi rumah Anda.";
+            } else if (val.includes('Indomaret')) {
+                textEl.innerHTML = "🏪 Kode bayar <strong>Minimarket</strong> (Indomaret/Alfamart) akan diterbitkan oleh Admin via WhatsApp.";
+            } else if (val.includes('PayPal') || val.includes('Credit Card') || val.includes('Wise')) {
+                textEl.innerHTML = "🌍 Link invoice <strong>Internasional Gateway</strong> (Payment Link) akan dikirimkan ke nomor WhatsApp Anda.";
+            } else if (val.includes('Crypto')) {
+                textEl.innerHTML = "⛓️ Alamat Wallet Address <strong>Cryptocurrency (USDT/BTC)</strong> akan diberikan oleh Admin setelah checkout.";
+            } else {
+                textEl.innerHTML = `🏦 Rekening Bank <strong>${val}</strong> resmi kami akan diinfokan oleh Admin untuk proses transfer manual.`;
+            }
+        }
+
+        function openCheckoutModal() {
+            if (cart.length === 0) return;
+            toggleCart(); 
+            const modal = document.getElementById('checkout-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+            document.body.style.overflow = 'hidden';
+            calculateOngkir(); 
+        }
+        
+        function closeCheckoutModal() {
+            const modal = document.getElementById('checkout-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }, 300);
+        }
+
+        // --- MAPS API LEAFLET ---
+        function openMapModal() {
+            const mapModal = document.getElementById('map-modal');
+            mapModal.classList.remove('hidden');
+            setTimeout(() => {
+                mapModal.classList.remove('opacity-0');
+                
+                if(!mapInstance) {
+                    mapInstance = L.map('leaflet-map').setView([-2.5489, 118.0148], 5); // Default map load Indonesia
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
+                        attribution: '&copy; OpenStreetMap' 
+                    }).addTo(mapInstance);
+                    
+                    mapInstance.on('click', function(e) {
+                        const lat = e.latlng.lat;
+                        const lng = e.latlng.lng;
+                        
+                        if(mapMarker) mapInstance.removeLayer(mapMarker);
+                        mapMarker = L.marker([lat, lng]).addTo(mapInstance);
+                        
+                        document.getElementById('map-address-display').innerHTML = `<i>Mendeteksi alamat via satelit... mohon tunggu...</i>`;
+                        document.getElementById('btn-confirm-location').disabled = true;
+
+                        // API Geocoding Gratis
+                        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                const addressStr = data.display_name;
+                                const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+                                tempAddressData = { address: addressStr, link: mapsUrl, lat: lat, lng: lng };
+                                
+                                document.getElementById('map-address-display').innerHTML = `<span class="text-sawit-neon font-bold"><i class="fas fa-check-circle"></i> Lokasi Ditemukan:</span><br>${addressStr}`;
+                                document.getElementById('btn-confirm-location').disabled = false;
+                            })
+                            .catch(err => {
+                                document.getElementById('map-address-display').innerHTML = `<span class="text-red-400">Gagal melacak teks alamat secara otomatis. Pastikan internet stabil atau klik titik lain.</span>`;
+                            });
+                    });
+                } else {
+                    mapInstance.invalidateSize(); 
+                }
+            }, 100);
+        }
+
+        function closeMapModal() {
+            const mapModal = document.getElementById('map-modal');
+            mapModal.classList.add('opacity-0');
+            setTimeout(() => mapModal.classList.add('hidden'), 300);
+        }
+
+        function confirmLocation() {
+            if(!tempAddressData.address) return;
+            
+            document.getElementById('chk_address').value = tempAddressData.address;
+            document.getElementById('chk_maps_link').value = tempAddressData.link;
+            
+            userDistanceKM = getDistanceFromLatLonInKm(IKN_COORD.lat, IKN_COORD.lng, tempAddressData.lat, tempAddressData.lng);
+            document.getElementById('modal-distance').innerHTML = `<span class="text-green-400"><i class="fas fa-route"></i> ${userDistanceKM.toFixed(1)} km dari Gudang IKN</span>`;
+            
+            closeMapModal();
+            calculateOngkir(); 
+        }
+
+        // --- RUMUS ONGKIR SHOPEE/TOKOPEDIA STYLE & ESTIMASI TANGGAL TEPAT ---
+        function calculateOngkir() {
+            const courier = document.getElementById('chk_courier').value;
+            let ongkir = 0;
+            let estimasiWaktuStr = ""; 
+            
+            const isInternational = courier.includes('DHL') || courier.includes('FedEx') || courier.includes('UPS') || courier.includes('Aramex') || courier.includes('Post') || courier.includes('EMS');
+            const isInstant = courier.includes('Instant') || courier.includes('GoSend');
+
+            if (userDistanceKM === 0) {
+                // Tarif & Estimasi Manual Jika Belum pakai Maps
+                if (isInternational) { ongkir = 250000; estimasiWaktuStr = getEstimasiTanggal(7, 14); }
+                else if (courier.includes('Pos') || courier.includes('Wahana')) { ongkir = 15000; estimasiWaktuStr = getEstimasiTanggal(3, 7); }
+                else if (isInstant) { ongkir = 25000; estimasiWaktuStr = getEstimasiTanggal(0, 0); }
+                else { ongkir = 20000; estimasiWaktuStr = getEstimasiTanggal(2, 5); }
+            } else {
+                if (isInternational) {
+                    let intlBase = 200000;
+                    ongkir = Math.round(intlBase + (userDistanceKM * 15));
+                    
+                    const MIN_INTL = 200000;
+                    const MAX_INTL = 850000;
+                    ongkir = Math.min(MAX_INTL, Math.max(MIN_INTL, ongkir));
+                    
+                    estimasiWaktuStr = getEstimasiTanggal(7, 14); // Fix Internasional (7-14 hari)
+                } else {
+                    let baseTarif = 0;
+                    
+                    if (userDistanceKM <= 20) {
+                        baseTarif = 10000 + (userDistanceKM * 1000);
+                        estimasiWaktuStr = getEstimasiTanggal(1, 2);
+                    } else if (userDistanceKM <= 100) {
+                        baseTarif = 15000 + (userDistanceKM * 200);
+                        estimasiWaktuStr = getEstimasiTanggal(1, 3);
+                    } else if (userDistanceKM <= 500) {
+                        baseTarif = 25000 + (userDistanceKM * 50);
+                        estimasiWaktuStr = getEstimasiTanggal(2, 4);
+                    } else {
+                        baseTarif = 35000 + (userDistanceKM * 15);
+                        estimasiWaktuStr = getEstimasiTanggal(3, 7);
+                    }
+
+                    // Terapkan diskon atau cas multiplier berdasarkan kurir
+                    let multiplier = 1.0;
+                    if(courier.includes('Pos') || courier.includes('Wahana')) {
+                        multiplier = 0.8; 
+                        // Kurir Ekonomis lebih lama harinya
+                        if(userDistanceKM <= 100) estimasiWaktuStr = getEstimasiTanggal(2, 4);
+                        else if(userDistanceKM <= 500) estimasiWaktuStr = getEstimasiTanggal(3, 6);
+                        else estimasiWaktuStr = getEstimasiTanggal(5, 10);
+                    }
+                    if(courier.includes('JNE')) multiplier = 1.1; 
+
+                    ongkir = Math.round(baseTarif * multiplier);
+
+                    // --- SISTEM PEMBATASAN ONGKIR (CAP) ---
+                    let MIN_LOCAL = 9000;
+                    let MAX_LOCAL = 75000; 
+
+                    if (isInstant) {
+                        MIN_LOCAL = 15000;
+                        estimasiWaktuStr = getEstimasiTanggal(0, 0); // Ojol Hari Ini
+                        if (userDistanceKM > 40) {
+                            ongkir = 150000;
+                            MAX_LOCAL = 150000;
+                            estimasiWaktuStr = "Batal (Melebihi batas jangkauan radius Kurir Instant!)";
+                        } else {
+                            ongkir = 10000 + (userDistanceKM * 2500);
+                            MAX_LOCAL = 100000;
+                        }
+                    }
+
+                    ongkir = Math.min(MAX_LOCAL, Math.max(MIN_LOCAL, ongkir));
+                }
+            }
+
+            // Membulatkan ke kelipatan Rp 500
+            ongkir = Math.ceil(ongkir / 500) * 500;
+
+            document.getElementById('modal-subtotal').innerText = formatRupiah(TOTAL_BELANJA_BARANG);
+            document.getElementById('modal-admin').innerText = formatRupiah(BIAYA_ADMIN);
+            document.getElementById('modal-ongkir').innerText = formatRupiah(ongkir);
+            document.getElementById('modal-estimasi').innerText = estimasiWaktuStr; // Update Tampilan TANGGAL
+            
+            window.FINAL_ONGKIR = ongkir;
+            window.FINAL_ESTIMASI = estimasiWaktuStr; // Simpan Tanggal untuk dikirim ke WA
+            window.GRAND_TOTAL = TOTAL_BELANJA_BARANG + BIAYA_ADMIN + ongkir;
+            document.getElementById('modal-total').innerText = formatRupiah(window.GRAND_TOTAL);
+        }
+
+        // --- CHECKOUT VIA WA ---
+        function processCheckoutWA() {
+            const name = document.getElementById('chk_name').value.trim();
+            const address = document.getElementById('chk_address').value.trim();
+            const mapsLink = document.getElementById('chk_maps_link').value.trim();
+            const courier = document.getElementById('chk_courier').value;
+            const payment = document.getElementById('chk_payment').value;
+            const agree = document.getElementById('chk_agree').checked;
+
+            if (!name || !address) { 
+                alert("Harap melengkapi Nama dan Alamat pengiriman Anda!"); 
+                return; 
+            }
+            if(!agree) { 
+                alert("Mohon centang persetujuan Syarat & Ketentuan sebelum melanjutkan pesanan."); 
+                return; 
+            }
+
+            let orderText = `*INVOICE PESANAN - WOWOK NATURE (Pusat IKN)* 🌴\n`;
+            orderText += `-------------------------------------------------------\n`;
+            orderText += `📝 *DATA PELANGGAN*\n`;
+            orderText += `Nama : ${name}\n`;
+            orderText += `Alamat : ${address}\n`;
+            if(userDistanceKM > 0) orderText += `Jarak Gudang : ${userDistanceKM.toFixed(1)} KM\n`;
+            if(mapsLink) orderText += `Maps : ${mapsLink}\n`;
+            orderText += `-------------------------------------------------------\n\n`;
+            
+            orderText += `📦 *DAFTAR PRODUK*\n`;
+            cart.forEach((item, index) => {
+                const subtotal = item.price * item.qty;
+                orderText += `${index + 1}. ${item.name} [${item.qty}x] = ${formatRupiah(subtotal)}\n`;
+            });
+
+            orderText += `\n-------------------------------------------------------\n`;
+            orderText += `💰 *RINGKASAN PEMBAYARAN*\n`;
+            orderText += `Subtotal Barang : ${formatRupiah(TOTAL_BELANJA_BARANG)}\n`;
+            orderText += `Biaya Admin : ${formatRupiah(BIAYA_ADMIN)}\n`;
+            orderText += `Ongkos Kirim (${courier}) : ${formatRupiah(window.FINAL_ONGKIR)}\n`;
+            orderText += `Estimasi Tiba : *${window.FINAL_ESTIMASI}*\n`; // Mengirim TANGGAL yang akurat
+            orderText += `*TOTAL BAYAR : ${formatRupiah(window.GRAND_TOTAL)}*\n`;
+            orderText += `-------------------------------------------------------\n`;
+            orderText += `Metode Pembayaran : *${payment}*\n\n`;
+            orderText += `Pesanan dikirim otomatis via Website. Tolong konfirmasi stok dan proses pembayarannya Admin!`;
+
+            const encodedMessage = encodeURIComponent(orderText);
+            const waNumber = "6285842365698"; 
+            
+            window.open(`https://wa.me/${waNumber}?text=${encodedMessage}`, '_blank');
+            
+            cart = []; 
+            saveCart(); 
+            closeCheckoutModal();
+        }
+    </script>
+</body>
+</html>
